@@ -24,25 +24,19 @@ module.exports = NodeHelper.create({
      * node_helper start method
      */
   start: function() {
-    console.log("[PiLights] Starting node_helper");
+    console.log("[MMM-LEDStrips] Starting node_helper");
 
     this.expressApp.use(bodyParser.json());
     this.expressApp.use(bodyParser.urlencoded({ extended: true }));
 
-    this.expressApp.get("/PiLights", (req, res) => {
-      console.error("[PiLights] Incoming:", req.query);
+    this.expressApp.get("/LEDStrip", (req, res) => {
+      console.error("[MMM-LEDStrips] Incoming:", req.query);
 
       if (typeof req.query.sequence !== "undefined") {
         // Sequence
         var seq = req.query.sequence;
-        var r = Number(req.query.r) || 0;
-        var g = Number(req.query.g) || 0;
-        var b = Number(req.query.b) || 0;
 
-        var iterations = Number(req.query.iterations) || 1;
-        var speed = Number(req.query.speed) || 10;
-
-        this.runSequence(req, iterations, speed, r, g, b)
+        /*this.runSequence(req, iterations, speed, r, g, b)
           .then(function() {
             res.status(200).send({
               status: 200
@@ -53,36 +47,7 @@ module.exports = NodeHelper.create({
               status: 400,
               error: err.message
             });
-          });
-      } else if (
-        typeof req.query.r !== "undefined" ||
-        typeof req.query.g !== "undefined" ||
-        typeof req.query.b !== "undefined"
-      ) {
-        r = Number(req.query.r) || 0;
-        g = Number(req.query.g) || 0;
-        b = Number(req.query.b) || 0;
-        console.error(r + " " + g + " " + b);
-        if (typeof req.query.id !== "undefined") {
-          id = Number(req.query.id) || 0;
-          this.leds.setColor(id, [r, g, b]);
-          this.leds.update();
-        } else {
-          this.leds.fill(r, g, b);
-        }
-        res.status(200).send({
-          status: 200
-        });
-      } else if (typeof req.query.stop !== "undefined") {
-        this.off();
-        res.status(200).send({
-          status: 200
-        });
-      } else {
-        res.status(400).send({
-          status: 400,
-          error: "Sequence not specified"
-        });
+          });*/
       }
     });
   },
@@ -104,12 +69,17 @@ module.exports = NodeHelper.create({
         try {
           config.strips.push(new Strip(strip.id, strip.type, strip.ledCount, strip.device));
         } catch (err) {
-          console.error("[PiLights] Unable to open SPI (" + this.config.device + "), not supported?", err.message);
+          console.error("[PiLights] Unable to open SPI (" + this.config.device + "), not supported? ", err.message);
         }
       });
     } else if (notification === "SEQUENCE") {
       let ani = animations(payload);
       this.pushAnimation(ani);
+    } else if (notification === "TURN_OFF") {
+      this.removeAll();
+      config.strips.forEach(strip => {
+        strip.clear();
+      });
     }
   },
 
@@ -134,8 +104,18 @@ module.exports = NodeHelper.create({
    * @param {Animation} animation
    */
   removeAnimation: function(animation) {
+    if (animation.state == Animation.stateEnum.running) {
+      animation.stop();
+    }
     _.pull(this.animationsToRun, animation);
     animation.removeAllListeners();
+  },
+
+  removeAll() {
+    let self = this;
+    this.animationsToRun(animation => {
+      self.removeAnimation(animation);
+    });
   },
 
   startNextAnimation: function() {

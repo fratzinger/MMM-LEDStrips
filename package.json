@@ -6,15 +6,13 @@
   "scripts": {
     "postinstall": "node_modules/.bin/electron-rebuild -e ../../node_modules/electron"
   },
-  "author": "fratz",
+  "author": "fratzinger",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MichMich/MagicMirror.git"
+    "url": "git+https://github.com/fratzinger/MMM-LEDStrips.git"
   },
   "license": "MIT",
   "dependencies": {
-    "ajv": "latest",
-    "async": "latest",
     "body-parser": "latest",
     "color": "latest",
     "lpd8806-async": "^0.2.2",

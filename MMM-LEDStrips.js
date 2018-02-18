@@ -41,12 +41,17 @@ Module.register("MMM-PiLights", {
      * @param {*}      payload
      */
   notificationReceived: function(notification, payload) {
-    this.config.notifiations.forEach((n, index) => {
-        if (n.id == notification) {
-            this.sendSocketNotification("SEQUENCE", n.sequence);
-            break;
-        }
-    });
+    for (let i = 0; i < this.config.notifiations.length; i++) {
+      let n = this.config.notifiations[i];
+      if (n.id == notification) {
+        this.sendSocketNotification("SEQUENCE", n.sequence);
+        break;
+      }
+    }
+
+    if (notification === "MMM-LEDStrips_StopAll") {
+      this.sendSocketNotification("TURN_OFF");
+    }
   },
 
   /**

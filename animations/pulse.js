@@ -41,6 +41,11 @@ class Pulse extends Animation {
       this._dir = -this._step;
     }
 
+    if (this._totalIterations > this.times) {
+      this.finish();
+      return;
+    }
+
     this._level += this._dir;
 
     if (this._level < 0.0) {
@@ -55,7 +60,11 @@ class Pulse extends Animation {
 
     this.strip.fill(Color.rgb(r, g, b));
 
-    this._timer = setTimeout(this.run, this._speed);
+    let self = this;
+
+    this._timer = setTimeout(function() {
+      self._run();
+    }, this._speed);
   }
 
   start() {
