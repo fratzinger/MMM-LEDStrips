@@ -1,0 +1,26 @@
+{
+  "name": "MMM-LEDStrips",
+  "version": "0.0.1",
+  "description": "Magic Mirror control of LED Strip",
+  "keywords": ["magic mirror", "smart mirror", "LED", "module", "ws2801", "lpd8806"],
+  "scripts": {
+    "postinstall": "node_modules/.bin/electron-rebuild -e ../../node_modules/electron"
+  },
+  "author": "fratz",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MichMich/MagicMirror.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "ajv": "latest",
+    "async": "latest",
+    "body-parser": "latest",
+    "color": "latest",
+    "lpd8806-async": "^0.2.2",
+    "rpi-ws2801": "^0.0.4"
+  },
+  "devDependencies": {
+    "electron-rebuild": "^1.2.1"
+  }
+}
