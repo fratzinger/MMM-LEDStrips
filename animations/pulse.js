@@ -2,10 +2,8 @@ const Color = require("color");
 const Strip = require("../strip.js");
 
 var Animation = require("./animation");
-var conf = require("../config");
 
 class Pulse extends Animation {
-
   constructor(seq) {
     super(seq);
     this.name = "Pulse";
@@ -18,24 +16,31 @@ class Pulse extends Animation {
     this._timer;
   }
 
-  resume() {
-    super();
-
-    this._run();
+  start() {
+    super.start();
+    this.run();
   }
 
-  _run() {
-    if (this._timer != null) return;
+  resume() {
+    super.resume();
+
+    this.run();
+  }
+
+  run() {
+    if (this._timer != null) {
+      clearTimeout(this._timer);
+    }
     this._timer = null;
 
-    if (this.state != animation.stateEnum.running) {
+    if (this.state != Animation.stateEnum.running) {
       return;
     }
 
     if (this._level <= 0.0) {
       this._level = 0.0;
       this._dir = this._step;
-      this._total_iterations++;
+      this._totalIterations++;
     } else if (this._level >= 1.0) {
       this._level = 1.0;
       this._dir = -this._step;
@@ -54,22 +59,39 @@ class Pulse extends Animation {
       this._level = 1.0;
     }
 
-    let r = this.col.red() * level;
-    let g = this.col.green() * level;
-    let b = this.col.blue() * level;
+    if (this.color instanceof Color) {
+      let r = this.color.red() * this._level;
+      let g = this.color.green() * this._level;
+      let b = this.color.blue() * this._level;
 
-    this.strip.fill(Color.rgb(r, g, b));
+      this.strip.fill(Color.rgb(r, g, b));
+    } else if (this.color.constructor === Array) {
+      let cols = [];
+      for (let i = 0; i < this.color.length; i++) {
+        let r = this.color[i].red() * this._level;
+        let g = this.color[i].green() * this._level;
+        let b = this.color[i].blue() * this._level;
+        cols.push(Color.rgb(r, g, b));
+      }
+
+      this.strip.fill(cols);
+    } else {
+      throw new Error("Instance is no Color or Color[]");
+    }
 
     let self = this;
 
     this._timer = setTimeout(function() {
-      self._run();
-    }, this._speed);
+      self.run();
+    }, this.speed);
   }
 
-  start() {
-    super.start();
-    this._run();
+  pause() {
+    super.pause();
+  }
+
+  stop() {
+    super.stop();
   }
 }
 

@@ -10,6 +10,7 @@ class Strip {
   constructor(id, type, count, device) {
     this._id = id;
     this._type = type;
+    this._device = device;
     this._leds = null;
     this._count = count;
     if (type == "lpd8806") {
@@ -38,13 +39,17 @@ class Strip {
   }
 
   connect() {
+    console.log("connect");
     if (this.type == typeEnum.lpd8806) {
       // Internal reference to lpd8806-async
       var LPD8806 = require("lpd8806-async");
-      this._leds = new LPD8806(this._count, device);
+      this._leds = new LPD8806(this._count, this._device);
     } else if (this.type == typeEnum.ws2801) {
       // Internal reference to rpi-ws2801
-      this._leds = require("rpi-ws2801").connect(this._count, device);
+      this._leds = require("rpi-ws2801");
+      this._leds.connect(this._count, this._device);
+      this._leds.clear();
+      let self = this;
     }
   }
 
@@ -69,12 +74,17 @@ class Strip {
   fill(col) {
     if (col instanceof Color) {
       if (this.type == typeEnum.ws2801) {
-        this.leds.fill(col.red(), col.green(), col.blue());
+        let r = Math.floor(col.red());
+        let g = Math.floor(col.green());
+        let b = Math.floor(col.blue());
+
+        this.leds.fill(r, g, b);
       }
     } else if (col instanceof Array) {
       for (let i = 0; i < col.length; i++) {
-        this.setColor(i, col[i]);
+        this.setColor(i, col[i], false);
       }
+      this.update();
     } else if (col instanceof String) {
       this.fill(colorHelper.color(col));
     }

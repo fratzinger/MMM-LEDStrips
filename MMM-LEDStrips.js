@@ -1,6 +1,6 @@
 /* global Module */
 
-Module.register("MMM-PiLights", {
+Module.register("MMM-LEDStrips", {
   /**
      * Module config defaults
      */
@@ -11,7 +11,7 @@ Module.register("MMM-PiLights", {
       {
         id: 1,
         type: "ws2801",
-        devide: "/dev/spidev0.0",
+        device: "/dev/spidev0.0",
         //brightness: 1.0,
         ledCount: 32
       }
@@ -41,8 +41,9 @@ Module.register("MMM-PiLights", {
      * @param {*}      payload
      */
   notificationReceived: function(notification, payload) {
-    for (let i = 0; i < this.config.notifiations.length; i++) {
-      let n = this.config.notifiations[i];
+    console.log(notification);
+    for (let i = 0; i < this.config.notifications.length; i++) {
+      let n = this.config.notifications[i];
       if (n.id == notification) {
         this.sendSocketNotification("SEQUENCE", n.sequence);
         break;
@@ -51,6 +52,8 @@ Module.register("MMM-PiLights", {
 
     if (notification === "MMM-LEDStrips_StopAll") {
       this.sendSocketNotification("TURN_OFF");
+    } else if (notification === "MMM-LEDStrips_SEQUENCE") {
+      this.sendSocketNotification("SEQUENCE", payload);
     }
   },
 

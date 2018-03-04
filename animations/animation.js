@@ -10,46 +10,41 @@ class Animation extends EventEmitter {
     super();
 
     this.name = "animation";
-    this.strip = config.strips.find(function(strip) {
-      return strip.id == seq.stripId;
-    });
-    if (!(this.strip instanceof Strip)) {
-      throw new Error("strip cannot be found");
-    }
+    this.strip = seq.strip;
 
     this.color = seq.color || config.color || Color.rgb(255, 255, 255);
     this.speed = seq.speed || config.speed || 20;
     this.times = seq.times || config.times || 1;
-    this.state = animation.stateEnum.notStarted;
+    this.state = Animation.stateEnum.notStarted;
   }
 
   start() {
     console.log('animation: "' + this.name + '" is starting');
-    this.state = animation.stateEnum.running;
+    this.state = Animation.stateEnum.running;
     this.emit(Animation.eventEnum.started, this);
   }
 
   pause() {
     console.log('animation: "' + this.name + '" paused');
-    this.state = animation.stateEnum.paused;
+    this.state = Animation.stateEnum.paused;
     this.emit(Animation.eventEnum.paused, this);
   }
 
   resume() {
     console.log('animation: "' + this.name + '" resumed');
-    this.state = animation.stateEnum.running;
+    this.state = Animation.stateEnum.running;
     this.emit(Animation.eventEnum.resumed, this);
   }
 
   stop() {
     console.log('animation: "' + this.name + '" stopped');
-    this.state = animation.stateEnum.stopped;
+    this.state = Animation.stateEnum.stopped;
     this.emit(Animation.eventEnum.stopped, this);
   }
 
   finish() {
     console.log('animation: "' + this.name + '" finished');
-    this.state = animation.stateEnum.finished;
+    this.state = Animation.stateEnum.finished;
     this.emit(Animation.eventEnum.finished, this);
   }
 

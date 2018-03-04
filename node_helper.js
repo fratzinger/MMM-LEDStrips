@@ -5,14 +5,6 @@ const Color = require("color");
 const NodeHelper = require("node_helper");
 const bodyParser = require("body-parser");
 
-const async = require("async");
-
-var ajv = require("ajv")({
-  allErrors: true,
-  format: "full",
-  coerceTypes: true
-});
-
 const animations = require("./animations/animations");
 const Animation = require("./animations/animation");
 const Strip = require("./strip.js");
@@ -63,16 +55,26 @@ module.exports = NodeHelper.create({
     console.info(notification);
     if (notification === "SET_CONFIG") {
       config = payload;
-      config.strips = [];
+      config.stripsInstances = [];
+      //console.log(payload);
 
-      this.config.strips.forEach((strip, index) => {
+      config.strips.forEach((strip, index) => {
         try {
-          config.strips.push(new Strip(strip.id, strip.type, strip.ledCount, strip.device));
+          let s = new Strip(strip.id, strip.type, strip.ledCount, strip.device);
+          config.stripsInstances.push(s);
         } catch (err) {
-          console.error("[PiLights] Unable to open SPI (" + this.config.device + "), not supported? ", err.message);
+          console.error("[PiLights] Unable to open SPI (" + strip.device + "), not supported? ", err.message);
         }
       });
     } else if (notification === "SEQUENCE") {
+      payload.strip = config.stripsInstances.find(function(strip) {
+        return strip.id == payload.stripId;
+      });
+
+      if (!(payload.strip instanceof Strip)) {
+        throw new Error("strip cannot be found");
+      }
+
       let ani = animations(payload);
       this.pushAnimation(ani);
     } else if (notification === "TURN_OFF") {
@@ -90,10 +92,11 @@ module.exports = NodeHelper.create({
     if (this.animationsToRun.length == 0) {
       animation.start();
     }
-    animation.animationsToRun.push(animation);
+    this.animationsToRun.push(animation);
     let self = this;
     animation.once(Animation.eventEnum.finished, animation => {
       self.removeAnimation(animation);
+      console.log("animationsToRun: " + self.animationsToRun.length);
     });
     animation.once(Animation.eventEnum.stopped, animation => {
       self.removeAnimation(animation);

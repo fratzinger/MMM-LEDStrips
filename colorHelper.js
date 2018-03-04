@@ -18,13 +18,13 @@ _wheel = function(pos) {
 };
 
 module.exports = {
-  color(col) {
+  color(col, strip) {
     try {
       if (col instanceof Color) {
         return col;
       } else if (typeof col === "string" || col instanceof String) {
         if (col == "rainbow") {
-          let rainbowCols = this._rainbow();
+          let rainbowCols = this._rainbow(strip.count);
           return rainbowCols;
         } else {
           let c = Color(col);
@@ -39,11 +39,10 @@ module.exports = {
     }
   },
 
-  getRainbow() {},
-  _rainbow() {
+  _rainbow(count) {
     let colors = [];
-    for (i = 0; i < this._count; i++) {
-      var col = wheel((i * 256.0 / this._count) % 256);
+    for (i = 0; i < count; i++) {
+      var col = _wheel((i * 256.0 / count) % 256);
       colors.push(col);
     }
     return colors;
